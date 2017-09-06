@@ -1,0 +1,40 @@
+#!/bin/sh
+prefix=$(readlink -f "$1")
+shift
+
+prepend () {
+    test -n "$2" && printf "%s:%s" "$1" "$2" || printf "$1"
+}
+
+unset PYTHON_HOME
+PATH=$(prepend "$prefix/bin" "$PATH")
+export PATH
+
+if test -e "$prefix/lib"
+then
+    libdir="$prefix/lib"
+elif test -e "$prefix/lib64"
+then
+    libdir="$prefix/lib64"
+fi
+if test -n "$libdir"
+then
+    LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
+    export LD_LIBRARY_PATH
+fi
+
+PYTHON=${PYTHON:-python}
+if test ! -e "$prefix/bin/$PYTHON" && test -n "$libdir"
+then
+    # $prefix is not a virtualenv, but it may contain python modules.
+    python_version=$(
+        "$PYTHON" -c 'import sys; print("%s.%s" % sys.version_info[:2])')
+    site_packages="$libdir/python$python_version/site-packages"
+    if test -e "$site_packages"
+    then
+        PYTHONPATH=$(prepend "$site_packages" "$PYTHONPATH")
+        export PYTHONPATH
+    fi
+fi
+
+exec "$@"
