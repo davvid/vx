@@ -1,6 +1,5 @@
 #!/bin/sh
 prefix=$(readlink -f "$1")
-shift
 
 prepend () {
     test -n "$2" && printf "%s:%s" "$1" "$2" || printf "$1"
@@ -37,4 +36,5 @@ then
     fi
 fi
 
+shift
 exec "$@"
