@@ -5,7 +5,6 @@ prepend () {
     test -n "$2" && printf "%s:%s" "$1" "$2" || printf "$1"
 }
 
-unset PYTHON_HOME
 PATH=$(prepend "$prefix/bin" "$PATH")
 export PATH
 
@@ -22,6 +21,7 @@ then
     export LD_LIBRARY_PATH
 fi
 
+unset PYTHON_HOME
 PYTHON=${PYTHON:-python}
 if test ! -e "$prefix/bin/$PYTHON" && test -n "$libdir"
 then
