@@ -3,7 +3,20 @@ prepend () {
     test -n "$2" && printf '%s:%s' "$1" "$2" || printf '%s' "$1"
 }
 
-prefix=$(readlink -f "$1")
+resolve_symlink () {
+	uname_s=$(uname -s)
+	if test "$uname_s" = "Darwin"
+	then
+		(
+			cd -P -- "$(dirname -- "$1")" &&
+			printf '%s\n' "$(pwd -P)/$(basename -- "$1")"
+		)
+	else
+		readlink -f "$1"
+	fi
+}
+
+prefix=$(resolve_symlink "$1")
 PATH=$(prepend "$prefix/bin" "$PATH")
 export PATH
 
