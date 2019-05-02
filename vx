@@ -17,7 +17,14 @@ resolve_symlink () {
 }
 
 prefix=$(resolve_symlink "$1")
-PATH=$(prepend "$prefix/bin" "$PATH")
+if test -e "$prefix/bin"
+then
+	PATH=$(prepend "$prefix/bin" "$PATH")
+fi
+if test -e "$prefix/Scripts"
+then
+	PATH=$(prepend "$prefix/Scripts" "$PATH")
+fi
 export PATH
 
 if test -e "$prefix/lib"
