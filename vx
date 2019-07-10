@@ -34,10 +34,20 @@ elif test -e "$prefix/lib64"
 then
     libdir="$prefix/lib64"
 fi
+
 if test -n "$libdir"
 then
-    LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
-    export LD_LIBRARY_PATH
+	case "$OSTYPE" in
+	darwin*)
+		DYLD_FALLBACK_LIBRARY_PATH=$(prepend "$libdir" "$DYLD_LIBRARY_PATH")
+		export DYLD_FALLBACK_LIBRARY_PATH
+		;;
+	*)
+		LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
+		export LD_LIBRARY_PATH
+		;;
+	esac
+
 fi
 
 unset PYTHON_HOME
