@@ -3,67 +3,110 @@ prepend () {
     test -n "$2" && printf '%s:%s' "$1" "$2" || printf '%s' "$1"
 }
 
-resolve_symlink () {
-	uname_s=$(uname -s)
-	if test "$uname_s" = "Darwin"
-	then
-		(
-			cd -P -- "$(dirname -- "$1")" &&
-			printf '%s\n' "$(pwd -P)/$(basename -- "$1")"
-		)
-	else
-		readlink -f "$1"
-	fi
+is_darwin () {
+    case "$OSTYPE" in
+    darwin*)
+        return 0
+        ;;
+    esac
+    return 1
 }
 
-prefix=$(resolve_symlink "$1")
-if test -e "$prefix/bin"
-then
-	PATH=$(prepend "$prefix/bin" "$PATH")
-fi
-if test -e "$prefix/Scripts"
-then
-	PATH=$(prepend "$prefix/Scripts" "$PATH")
-fi
-export PATH
-
-if test -e "$prefix/lib"
-then
-    libdir="$prefix/lib"
-elif test -e "$prefix/lib64"
-then
-    libdir="$prefix/lib64"
-fi
-
-if test -n "$libdir"
-then
-	case "$OSTYPE" in
-	darwin*)
-		DYLD_FALLBACK_LIBRARY_PATH=$(prepend "$libdir" "$DYLD_LIBRARY_PATH")
-		export DYLD_FALLBACK_LIBRARY_PATH
-		;;
-	*)
-		LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
-		export LD_LIBRARY_PATH
-		;;
-	esac
-
-fi
-
-unset PYTHON_HOME
-PYTHON=${PYTHON:-python}
-if test ! -e "$prefix/bin/$PYTHON" && test -n "$libdir"
-then
-    # $prefix is not a virtualenv, but it may contain python modules.
-    python_version=$(
-        "$PYTHON" -c 'import sys; print("%s.%s" % sys.version_info[:2])')
-    site_packages="$libdir/python$python_version/site-packages"
-    if test -e "$site_packages"
+resolve_symlink () {
+    uname_s=$(uname -s)
+    if test "$uname_s" = "Darwin"
     then
-        PYTHONPATH=$(prepend "$site_packages" "$PYTHONPATH")
-        export PYTHONPATH
+        (
+            cd -P -- "$(dirname -- "$1")" &&
+            printf '%s\n' "$(pwd -P)/$(basename -- "$1")"
+        )
+    else
+        readlink -f "$1"
     fi
-fi
+}
 
-shift
-exec "$@"
+get_python_version () {
+    if test -e "$prefix/pyvenv.cfg"
+    then
+        # Newer virtualenvs provide pyvenv.cfg with a "version = " setting.
+        # This is an order of magnitude faster than using Python.
+        code='split($3, a, "."); print "python" a[1] "." a[2]'
+        awk "/version = / { $code }" <"$prefix/pyvenv.cfg"
+    else
+        # pyvenv.cfg is not available.  Let's try a heuristic first before
+        # resorting to calling into Python.
+        #
+        # We know that python2.7 provided $prefix/bin/python2.7
+        if test -e "$prefix/bin/python2.7"
+        then
+            echo python2.7
+        else
+            # Override the python used to query/activate by setting $PYTHON.
+            PYTHON=${PYTHON:-python}
+            code='import sys; print("python%s.%s" % sys.version_info[:2])'
+            "$PYTHON" -c "$print_version"
+        fi
+    fi
+}
+
+main () {
+    # The virtualenv prefix directory
+    prefix=$(resolve_symlink "$1")
+
+    # Setup PATH.
+    if test -e "$prefix/bin"
+    then
+        PATH=$(prepend "$prefix/bin" "$PATH")
+    fi
+    if test -e "$prefix/Scripts"
+    then
+        PATH=$(prepend "$prefix/Scripts" "$PATH")
+    fi
+    export PATH
+
+    # Find the lib directory.
+    if test -e "$prefix/lib"
+    then
+        libdir="$prefix/lib"
+    elif test -e "$prefix/lib64"
+    then
+        libdir="$prefix/lib64"
+    else
+        libdir=
+    fi
+
+    # Setup PYTHONPATH and library paths.
+    if test -n "$libdir"
+    then
+        if is_darwin
+        then
+            DYLD_FALLBACK_LIBRARY_PATH=$(prepend "$libdir" "$DYLD_LIBRARY_PATH")
+            export DYLD_FALLBACK_LIBRARY_PATH
+        else
+            LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
+            export LD_LIBRARY_PATH
+        fi
+
+        python_version=$(get_python_version)
+        site_packages="$libdir/$python_version/site-packages"
+        if test -e "$site_packages"
+        then
+            PYTHONPATH=$(prepend "$site_packages" "$PYTHONPATH")
+            export PYTHONPATH
+        fi
+    fi
+
+    # Setup virtualenv.
+    VIRTUAL_ENV="$prefix"
+    export VIRTUAL_ENV
+
+    unset PYTHON_HOME
+
+    # Shift off the $1 virtualenv directory.
+    shift
+
+    # Execute the remainder
+    exec "$@"
+}
+
+main "$@"
