@@ -1,0 +1,45 @@
+Name:           vx
+Version:        __VERSION__
+Release:        __RELEASE__%{?dist}
+Summary:        Run commands in Python virtualenvs
+
+Group:          Development/Tools
+License:        MIT
+URL:            https://github.com/davvid/vx
+Source0:        https://github.com/davvid/vx/releases/%{name}-%{version}.tar.gz
+
+BuildArch:      noarch
+
+BuildRequires:  bash
+BuildRequires:  coreutils
+BuildRequires:  make
+Requires:       bash
+Requires:       coreutils
+Requires:       gawk
+
+BuildRoot:      %{_topdir}/BUILDROOT/%{name}-%{version}
+
+prefix: %{_prefix}
+
+%description
+Run commands in Python virtualenvs without polluting your shell environment.
+
+%prep
+%setup -q
+
+%build
+
+%install
+make DESTDIR=%{buildroot} prefix=%{_prefix} bindir=%{_bindir} docdir=%{_docdir}/vx install
+
+%clean
+rm -rf %{buildroot}
+
+%post
+
+%postun
+
+%files
+%defattr(-,root,root,-)
+%{_bindir}/vx
+%{_docdir}/vx
