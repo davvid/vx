@@ -37,6 +37,11 @@ Copy or symlink vx somewhere in your `$PATH`, e.g. `~/bin`, `~/.local/bin`,
 or `/usr/local/bin`.  Alternatively, copy vx into your project.
 vx is a single-file shell script with no external dependencies.
 
+Running "make install" installs to `$HOME` by default (`~/bin/vx`).
+Specify `prefix` to install into a specific installation prefix:
+
+        make prefix=/usr/local install
+
 Examples
 ========
 vx works with any command.
