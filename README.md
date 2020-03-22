@@ -1,8 +1,8 @@
-vx
-==
+# vx
+
 vx is a simpler single-file [vex](https://github.com/sashahart/vex).
 
-*NOTE*: a lot of this README was blatantly stolen from vex's README.
+NOTE: a lot of this README was blatantly stolen from vex's README.
 
 vx runs commands inside a virtualenv, like vex, but is implemented as a simple
 single-file, dependency-free shell script.
@@ -15,9 +15,9 @@ The big difference is that, instead of modifying your shell environment
 run in a new environment where the virtualenv is active; the current shell is
 left unchanged.
 
-Differences from Vex
---------------------
-The main difference between vx and vex are that vx *only* supports
+## Differences from Vex
+
+The main difference between vx and vex are that vx ONLY supports
 the following usage:
 
     vx <path> <command>
@@ -31,8 +31,8 @@ vx is simple and only handles virtualenv paths.
 The main improvements over vex are that python's startup overhead is avoided,
 and installation is simpler.  See the "Caveats" section for more details.
 
-How to install vx
-=================
+## How to install vx
+
 Copy or symlink vx somewhere in your `$PATH`, e.g. `~/bin`, `~/.local/bin`,
 or `/usr/local/bin`.  Alternatively, copy vx into your project.
 vx is a single-file shell script with no external dependencies.
@@ -42,8 +42,8 @@ Specify `prefix` to install into a specific installation prefix:
 
         make prefix=/usr/local install
 
-Examples
-========
+## Examples
+
 vx works with any command.
 
     vx <path> bash
@@ -65,8 +65,8 @@ vx works with any command.
     vx <path> ipython
         Launch ipython inside the virtualenv at <path>.
 
-How vx works
-============
+## How vx works
+
 vx runs any command from within a virtualenv, eliminating the need to
 modify your current shell environment.
 
@@ -105,8 +105,8 @@ unnecessary; the virtualenv "deactivates" when the process ends,
 e.g. if you use `exit` or Ctrl-D as normal to leave bash. That's just
 an example with bash, it works the same with anything.
 
-Caveats
-=======
+## Caveats
+
 Don't be surprised if `vx <path> sudo bash` results in a shell that doesn't use
 your virtualenv. Safe sudo policy often controls the environment, notably as
 a default on Debian and Ubuntu. It's better not to mess with this policy,
@@ -116,7 +116,7 @@ As a workaround, you can use this:
     sudo env PATH="$PATH" vx <path> bash
 
 vex's README has a caveat about it being slow if someone does something crazy
-like running vex a milliion times in a loop.  vx *does not* have this caveat.
+like running vex a milliion times in a loop.  vx __does not__ have this caveat.
 vx is a single-file shell script and does not incur python's startup overhead,
 so its startup time is typically 8~10 times faster than vex.
 
