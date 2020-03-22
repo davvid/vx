@@ -8,4 +8,4 @@ install:
   - /tmp/vx/usr/bin/vx . true
 
 script:
-  - ./test.sh -x
+  - make test V=2
