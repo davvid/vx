@@ -1,0 +1,4 @@
+language: generic
+dist: bionic
+script:
+  - ./test.sh -x
