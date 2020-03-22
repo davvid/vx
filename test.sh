@@ -40,4 +40,12 @@ test_expect_success 'vx preserves exit codes' '
 	test_expect_code 42 vx dist vx-test-script code 42
 '
 
+test_expect_success 'vx does not accepts files' '
+	test_expect_code 1 vx dist/bin/vx-test-script true
+'
+
+test_expect_success 'vx notices when the directory does not exist' '
+	test_expect_code 1 vx notices-this-does-not-exist true
+'
+
 test_done

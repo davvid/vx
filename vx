@@ -52,6 +52,11 @@ get_python_version () {
 main () {
     # The virtualenv prefix directory
     prefix=$(resolve_symlink "$1")
+    if ! test -d "$prefix"
+    then
+        echo 1>&2 "vx: error: '$prefix' does not exist"
+        exit 1
+    fi
 
     # Setup PATH.
     if test -e "$prefix/bin"
