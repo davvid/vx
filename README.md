@@ -1,5 +1,7 @@
 # vx
 
+[![vx build status](https://api.travis-ci.org/davvid/vx.svg?branch=master)](https://travis-ci.org/davvid/vx)
+
 vx is a simpler single-file [vex](https://github.com/sashahart/vex).
 
 NOTE: a lot of this README was blatantly stolen from vex's README.
