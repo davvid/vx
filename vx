@@ -31,7 +31,8 @@ get_python_version () {
         # Newer virtualenvs provide pyvenv.cfg with a "version = " setting.
         # This is an order of magnitude faster than using Python.
         code='split($3, a, "."); print "python" a[1] "." a[2]'
-        awk "/version = / { $code }" <"$prefix/pyvenv.cfg"
+        awk "/version = / { $code }; /version_info = / { $code }" \
+		<"$prefix/pyvenv.cfg"
     else
         # pyvenv.cfg is not available.  Let's try a heuristic first before
         # resorting to calling into Python.
