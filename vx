@@ -45,7 +45,7 @@ get_python_version () {
             # Override the python used to query/activate by setting $PYTHON.
             PYTHON=${PYTHON:-python}
             code='import sys; print("python%s.%s" % sys.version_info[:2])'
-            "$PYTHON" -c "$print_version"
+            "$PYTHON" -c "$code"
         fi
     fi
 }
