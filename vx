@@ -86,8 +86,8 @@ main () {
     then
         if is_darwin
         then
-            DYLD_FALLBACK_LIBRARY_PATH=$(prepend "$libdir" "$DYLD_LIBRARY_PATH")
-            export DYLD_FALLBACK_LIBRARY_PATH
+            DYLD_LIBRARY_PATH=$(prepend "$libdir" "$DYLD_LIBRARY_PATH")
+            export DYLD_LIBRARY_PATH
         else
             LD_LIBRARY_PATH=$(prepend "$libdir" "$LD_LIBRARY_PATH")
             export LD_LIBRARY_PATH
