@@ -1,4 +1,10 @@
 #!/bin/sh
+# usage:
+#   run a command inside a virtualenv:
+#	    vx <virtualenv> <command>
+#   escape from an active virtualenv and run a command:
+#	    vx --reset <command>
+
 prepend () {
     test -n "$2" && printf '%s:%s' "$1" "$2" || printf '%s' "$1"
 }
@@ -51,6 +57,16 @@ get_python_version () {
 }
 
 main () {
+    if test "$1" = "--reset"
+    then
+        vx_reset "$@"
+    else
+        vx_activate "$@"
+    fi
+}
+
+# Activate a virtulaenv and run a command inside of it.
+vx_activate () {
     # The virtualenv prefix directory
     prefix=$(resolve_symlink "$1")
     if ! test -d "$prefix"
@@ -71,15 +87,7 @@ main () {
     export PATH
 
     # Find the lib directory.
-    if test -e "$prefix/lib"
-    then
-        libdir="$prefix/lib"
-    elif test -e "$prefix/lib64"
-    then
-        libdir="$prefix/lib64"
-    else
-        libdir=
-    fi
+    libdir=$(get_libdir "$prefix")
 
     # Setup PYTHONPATH and library paths.
     if test -n "$libdir"
@@ -113,6 +121,91 @@ main () {
 
     # Execute the remainder
     exec "$@"
+}
+
+# Reset the environment to deactivate a virtualenv.
+vx_reset () {
+    # Consume the "--reset" flag
+    shift
+
+    if test -n "$VIRTUAL_ENV"
+    then
+        prefix="$VIRTUAL_ENV"
+
+        # Reset VIRTUAL_ENV
+        unset VIRTUAL_ENV
+
+        # Reset PATH
+        PATH=$(remove_path "$prefix/bin" "$PATH")
+        PATH=$(remove_path "$prefix/Scripts" "$PATH")
+        export PATH
+
+        # Reset LD_LIBRARY_PATH / DYLD_LIBRARY_PATH
+        libdir=$(get_libdir "$prefix")
+        if is_darwin
+        then
+            DYLD_LIBRARY_PATH=$(remove_path "$libdir" "$DYLD_LIBRARY_PATH")
+            if test -n "$DYLD_LIBRARY_PATH"
+            then
+                export DYLD_LIBRARY_PATH
+            else
+                unset DYLD_LIBRARY_PATH
+            fi
+        else
+            LD_LIBRARY_PATH=$(remove_path "$libdir" "$LD_LIBRARY_PATH")
+            if test -n "$LD_LIBRARY_PATH"
+            then
+                export LD_LIBRARY_PATH
+            else
+                unset LD_LIBRARY_PATH
+            fi
+        fi
+
+        # Reset PYTHONPATH
+        if test -n "$PYTHONPATH"
+        then
+
+            python_version=$(get_python_version)
+            site_packages="$libdir/$python_version/site-packages"
+
+            PYTHONPATH=$(remove_path "$site_packages" "$PYTHONPATH")
+            if test -n "$PYTHONPATH"
+            then
+                export PYTHONPATH
+            else
+                unset PYTHONPATH
+            fi
+        fi
+    fi
+
+    exec "$@"
+}
+
+get_libdir () {
+    prefix="$1"
+    # Find the lib directory.
+    if test -e "$prefix/lib"
+    then
+        libdir="$prefix/lib"
+    elif test -e "$prefix/lib64"
+    then
+        libdir="$prefix/lib64"
+    else
+        libdir="$prefix"
+    fi
+
+    printf '%s' "$libdir"
+}
+
+remove_path () {
+    path="$1"
+    value="$2"
+
+    printf '%s' "$value" |
+    tr ':' '\n' |
+    grep -v ^"$path" |
+    tr '\n' ':' |
+    sed -e 's/:$//'
 }
 
 main "$@"

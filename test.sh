@@ -95,4 +95,12 @@ test_expect_success 'vx finds modules in lib64' '
 	test_cmp expect actual
 '
 
+test_expect_success 'vx --reset clears PYTHONPATH' '
+	mkdir -p env27/lib/python2.7/site-packages &&
+	echo emptyvalue >expect &&
+	env -u PYTHONPATH \
+	vx env27 vx --reset sh -c "echo empty\${PYTHONPATH}value" >actual &&
+	test_cmp expect actual
+'
+
 test_done

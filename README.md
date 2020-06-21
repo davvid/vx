@@ -67,6 +67,10 @@ vx works with any command.
     vx <path> ipython
         Launch ipython inside the virtualenv at <path>.
 
+vx can also be used to escape out of an active virtualenv.
+
+    vx --reset <command>
+
 ## How vx works
 
 vx runs any command from within a virtualenv, eliminating the need to
