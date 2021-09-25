@@ -182,14 +182,14 @@ vx_reset () {
 }
 
 get_libdir () {
-    prefix="$1"
     # Find the lib directory.
-    if test -e "$prefix/lib"
-    then
-        libdir="$prefix/lib"
-    elif test -e "$prefix/lib64"
+    prefix="$1"
+    if test -d "$prefix/lib64"
     then
         libdir="$prefix/lib64"
+    elif test -d "$prefix/lib"
+    then
+        libdir="$prefix/lib"
     else
         libdir="$prefix"
     fi
