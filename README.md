@@ -1,6 +1,6 @@
 # vx
 
-[![vx build status](https://api.travis-ci.org/davvid/vx.svg?branch=main)](https://travis-ci.org/davvid/vx)
+[![vx build status](https://github.com/davvid/vx/actions/workflows/main.yml/badge.svg?branch=main&event=push)](https://github.com/davvid/vx/actions/workflows/main.yml)
 
 vx is a simpler single-file [vex](https://github.com/sashahart/vex).
 
