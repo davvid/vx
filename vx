@@ -107,6 +107,32 @@ vx_activate () {
 
     unset PYTHON_HOME
 
+    # Setup CMAKE_PREFIX_PATH for CMake.
+    CMAKE_PREFIX_PATH="${prefix}${CMAKE_PREFIX_PATH:+":${CMAKE_PREFIX_PATH}"}"
+    export CMAKE_PREFIX_PATH
+
+    # Setup PKG_CONFIG_PATH for pkg-config.
+    pkgconfig_lib="${prefix}/lib/pkgconfig"
+    pkgconfig_lib64="${prefix}/lib64/pkgconfig"
+    pkgconfig_share="${prefix}/share/pkgconfig"
+
+    if test -d "${pkgconfig_lib}"
+    then
+        PKG_CONFIG_PATH="${pkgconfig_lib}${PKG_CONFIG_PATH:+":${PKG_CONFIG_PATH}"}"
+    fi
+    if test -d "${pkgconfig_lib64}"
+    then
+        PKG_CONFIG_PATH="${pkgconfig_lib64}${PKG_CONFIG_PATH:+":${PKG_CONFIG_PATH}"}"
+    fi
+    if test -d "${pkgconfig_share}"
+    then
+        PKG_CONFIG_PATH="${pkgconfig_share}${PKG_CONFIG_PATH:+":${PKG_CONFIG_PATH}"}"
+    fi
+    if test -n "${PKG_CONFIG_PATH}"
+    then
+        export PKG_CONFIG_PATH
+    fi
+
     # Shift off the $1 virtualenv directory.
     shift
 
