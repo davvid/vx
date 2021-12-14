@@ -76,11 +76,11 @@ vx_activate () {
     fi
 
     # Setup PATH.
-    if test -e "$prefix/bin"
+    if test -d "$prefix/bin"
     then
         PATH=$(prepend "$prefix/bin" "$PATH")
     fi
-    if test -e "$prefix/Scripts"
+    if test -d "$prefix/Scripts"
     then
         PATH=$(prepend "$prefix/Scripts" "$PATH")
     fi
@@ -103,7 +103,7 @@ vx_activate () {
 
         python_version=$(get_python_version)
         site_packages="$libdir/$python_version/site-packages"
-        if test -e "$site_packages"
+        if test -d "$site_packages"
         then
             PYTHONPATH=$(prepend "$site_packages" "$PYTHONPATH")
             export PYTHONPATH
