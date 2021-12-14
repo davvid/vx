@@ -1,0 +1,38 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        # Repository checked out under $GITHUB_WORKSPACE
+
+      - name: Build
+        run: |
+          make DESTDIR=/tmp/vx prefix=/usr install
+          test -x /tmp/vx/usr/bin/vx
+          /tmp/vx/usr/bin/vx . true
+
+      - name: Test
+        run: make test V=2
+
+  darwin:
+    name: 'Build / darwin'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        # Repository checked out under $GITHUB_WORKSPACE
+
+      - name: Build
+        run: |
+          make DESTDIR=/tmp/vx prefix=/usr install
+          test -x /tmp/vx/usr/bin/vx
+          /tmp/vx/usr/bin/vx . true
+
+      - name: Test
+        run: make test V=2
