@@ -18,17 +18,8 @@ is_darwin () {
     return 1
 }
 
-resolve_symlink () {
-    uname_s=$(uname -s)
-    if test "$uname_s" = "Darwin"
-    then
-        (
-            cd -P -- "$(dirname -- "$1")" &&
-            printf '%s\n' "$(pwd -P)/$(basename -- "$1")"
-        )
-    else
-        readlink -f "$1"
-    fi
+abspath () {
+    (cd "$1" 2>/dev/null && pwd -L) || printf '%s' "$1"
 }
 
 get_python_version () {
@@ -68,7 +59,7 @@ main () {
 # Activate a virtulaenv and run a command inside of it.
 vx_activate () {
     # The virtualenv prefix directory
-    prefix=$(resolve_symlink "$1")
+    prefix=$(abspath "$1")
     if ! test -d "$prefix"
     then
         echo 1>&2 "vx: error: '$prefix' does not exist"
@@ -164,7 +155,6 @@ vx_reset () {
         # Reset PYTHONPATH
         if test -n "$PYTHONPATH"
         then
-
             python_version=$(get_python_version)
             site_packages="$libdir/$python_version/site-packages"
 
